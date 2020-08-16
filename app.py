@@ -110,8 +110,6 @@ def extract_keywords():
     values = request.form.get('comments')
     attribute_values = eval(skills)
     values = eval(values)
-    print(attribute_values)
-    print(values)
     res = {}
     for i in range(len(values)):
         values[i] = [pre_process(z) for z in values[i]]
@@ -133,11 +131,12 @@ def extract_keywords():
 
 @app.route('/comments/sentiment', methods=['POST'])
 def decide_which_product_kit():
-    data = request.json
-    points = eval(data['points'])
-    data.pop('points')
-    text_values = [eval(z) for z in list(data.values())]
-    attribute_values = list(data.keys())
+    skills = request.form.get('skills')
+    values = request.form.get('comments')
+    points = request.form.get('points')
+    points = eval(points)
+    attribute_values = eval(skills)
+    text_values = eval(values)
     assert len(attribute_values) == len(points.keys())  # Sanity check
     res = {}
     analyser = SentimentIntensityAnalyzer()
@@ -154,7 +153,10 @@ def decide_which_product_kit():
 
 @app.route('/class/perform', methods=['POST'])
 def send_waterfall_chart():
-    data = request.json
+    data = {'skill': request.form.get('skill'),
+            'values': request.form.get('values'),
+            'months': request.form.get('months')}
+    print(data)
     data['months'] = eval(data['months'])
     data['values'] = eval(data['values'])
     data['values'] = [float(x) for x in data['values']]
