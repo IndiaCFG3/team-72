@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import StudentRegistrationForm, UserDataForm
+import requests
 # Create your views here.
 @login_required
 def mystudents(request, id):
@@ -32,7 +33,7 @@ def register(request):
     return render(request,'students/register.html',context) 
 
 @login_required
-def details(request,id,sid):
+def detailsform(request,id,sid):
     if request.user.id==id:
         if request.method=='POST':
             form=UserDataForm(request.POST)
@@ -42,10 +43,20 @@ def details(request,id,sid):
             if form.is_valid(): 
                 form.save() 
                 messages.success(request,f'Done')
-                return redirect('details', id=id, sid=sid)
+                return redirect('detailsform', id=id, sid=sid)
         else:
             form=UserDataForm()
-        return render(request, 'students/details.html',{'form':form})
+        return render(request, 'students/detailsform.html',{'form':form,'sid':sid})
+    else:
+        return render(request, 'students/error.html')
+
+def details(request,id,sid):
+    if request.user.id==id:
+        newHeaders = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        diction={'Collaboration':['he works well','he works hard'],'Teamwork':['he leads well','he is determined']}
+        response=requests.post('http://127.0.0.1:5000/comments/keywords',data=diction,headers=newHeaders)
+        print(response.json)
+        return render(request, 'students/details.html',{'sid':sid})
     else:
         return render(request, 'students/error.html')
 
