@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 import pandas as pd
 import numpy as np
 import re
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from nltk.corpus import stopwords
 stopwords = stopwords.words('english')
@@ -95,14 +96,14 @@ def hello_world():
 @app.route('/comments/keywords', methods=['POST'])
 def extract_keywords():
     data = request.json
-    print(data)
+    #print(data)
     text_values = [eval(z) for z in list(data.values())]
-    print(text_values)
+    #print(text_values)
     attribute_values = list(data.keys())
     res = {}
     for i in range(len(text_values)):
         text_values[i] = [pre_process(z) for z in text_values[i]]
-        print(text_values[i])
+        #print(text_values[i])
         cv = CountVectorizer(max_df=0.85, stop_words=stopwords, max_features=10000)
         word_count_vector = cv.fit_transform(text_values[i])
         tfidf_transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
@@ -113,9 +114,33 @@ def extract_keywords():
         sorted_items = sort_coo(tf_idf_vector.tocoo())
         keywords={}
         keywords = extract_topn_from_vector(feature_names, sorted_items)
-        print(keywords)
+        #print(keywords)
         res[attribute_values[i]] = keywords
     return res
+
+
+@app.route('/comments/sentiment', methods=['POST'])
+def decide_which_product_kit():
+    data = request.json
+    # print(data)
+    points = eval(data['points'])
+    data.pop('points')
+    print(points)
+    text_values = [eval(z) for z in list(data.values())]
+    # print(text_values)
+    attribute_values = list(data.keys())
+    assert len(attribute_values) == len(points.keys())  # Sanity check
+    res = {}
+    analyser = SentimentIntensityAnalyzer()
+    for i in range(len(text_values)):
+        text_values[i] = '.'.join(t for t in text_values[i])
+        score = analyser.polarity_scores(text_values[i])
+        res[attribute_values[i]] = score['compound']
+
+    for z in list(points.keys()):
+        res[z] += points[z]
+
+    return res  # Recommend the one with the lowest score
 
 
 if __name__ == '__main__':
