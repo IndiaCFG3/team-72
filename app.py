@@ -122,12 +122,9 @@ def extract_keywords():
 @app.route('/comments/sentiment', methods=['POST'])
 def decide_which_product_kit():
     data = request.json
-    # print(data)
     points = eval(data['points'])
     data.pop('points')
-    print(points)
     text_values = [eval(z) for z in list(data.values())]
-    # print(text_values)
     attribute_values = list(data.keys())
     assert len(attribute_values) == len(points.keys())  # Sanity check
     res = {}
