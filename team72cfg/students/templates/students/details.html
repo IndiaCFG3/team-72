@@ -5,12 +5,15 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Register Student</legend>
+                <legend class="border-bottom mb-4">Fill Details</legend>
                 {{ form|crispy }}
             </fieldset>
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Submit</button>
+                <a class="btn btn-outline-info" style="margin-left: 550px;" href="{%url 'mystudents' id=user.id %}">Finish</a>
             </div>
         </form>
+        
     </div>
+    
 {% endblock content %}

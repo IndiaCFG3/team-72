@@ -1,6 +1,7 @@
 from django.db import models
 from phone_field import PhoneField
 from django.contrib.auth.models import User
+from django.utils import timezone
 # Create your models here.
 class Student(models.Model):
     firstname=models.CharField(max_length=20)
@@ -20,13 +21,14 @@ class Skill(models.Model):
     
 
     def __str__(self):
-        return self.mainskill+" "+self.subskill + " "+self.skillnames
+        return self.mainskill+"->"+self.subskill + "->"+self.skillnames
 
 class Skillset(models.Model):
-    yn=models.BooleanField()
+    yn=models.BooleanField(verbose_name="Yes or No")
     comment=models.CharField(max_length=100)
     student=models.ForeignKey(Student, on_delete=models.CASCADE)
     skills=models.ForeignKey(Skill,on_delete=models.CASCADE)
+    time_posted=models.TimeField(default=timezone.now)
 
     def __str__(self):
         return self.skills.skillnames+" "+self.student.firstname 

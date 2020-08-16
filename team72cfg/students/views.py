@@ -3,7 +3,7 @@ from .models import Student
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import StudentRegistrationForm
+from .forms import StudentRegistrationForm, UserDataForm
 # Create your views here.
 @login_required
 def mystudents(request, id):
@@ -31,7 +31,22 @@ def register(request):
 	context['form']= form 
 	return render(request,'students/register.html',context) 
 
-    
-
+@login_required
+def details(request,id,sid):
+    if request.user.id==id:
+        if request.method=='POST':
+            form=UserDataForm(request.POST)
+            s=Student.objects.get(id=sid)
+            #t=User.objects.get(id=id)
+            form.instance.student=s
+            if form.is_valid(): 
+                form.save() 
+                messages.success(request,f'Done')
+                return redirect('details', id=id, sid=sid)
+        else:
+            form=UserDataForm()
+        return render(request, 'students/details.html',{'form':form})
+    else:
+        return render(request, 'students/error.html')
 
 

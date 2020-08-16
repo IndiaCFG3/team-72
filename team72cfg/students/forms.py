@@ -1,7 +1,7 @@
 
 # import form class from django 
 from django import forms 
-  
+from .models import Skillset
 # import GeeksModel from models.py 
 from .models import Student
   
@@ -12,3 +12,8 @@ class StudentRegistrationForm(forms.ModelForm):
         model = Student 
         fields = "__all__"
         # exclude = ['teacher']
+
+class UserDataForm(forms.ModelForm):
+    class Meta:
+        model= Skillset
+        fields=['skills','yn','comment']

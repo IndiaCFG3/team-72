@@ -4,7 +4,7 @@
         <article class="media content-section">
           <div class="media-body">
             <div class="article-metadata">
-              <h3><a class="mr-2" href="#">{{ s.firstname }} {{ s.lastname }}</a></h3>
+              <h3><a class="mr-2" href="{% url 'details' id=user.id sid=s.id %}">{{ s.firstname }} {{ s.lastname }}</a></h3>
             </div>
             <h5><div class="article-title" >Phone: {{ s.phone }}</div></h5>
             <h5><div class="article-title"  >Email: {{ s.email }}</div></h5>
