@@ -1,24 +1,28 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, send_file
 from flask_cors import CORS, cross_origin
 import pandas as pd
 import numpy as np
 import re
+import os
+import waterfall_chart
+import matplotlib
+matplotlib.use('Agg')
+import nltk
+nltk.download("stopwords")
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from nltk.corpus import stopwords
 stopwords = stopwords.words('english')
-
-
 import matplotlib.pyplot as plt
-
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_svg import FigureCanvasSVG
 from matplotlib.figure import Figure
 import io
 
 
-app = Flask(__name__)
+app = Flask(_name_)
 CORS(app, support_credentials=True)
+
 
 def pre_process(text):
     """
@@ -30,6 +34,7 @@ def pre_process(text):
     text = re.sub('&lt;/?.*?&gt', '&lt;&gt', text)
     text = re.sub("(\\d|\\W)+", " ", text)
     return text
+
 
 def sort_coo(coo_matrix):
     """
@@ -61,28 +66,12 @@ def extract_topn_from_vector(feature_names, sorted_items, topn=10):
     return results
 
 
-def plot_stacked_bar_chart(x_attributes, y_values, ind_labels, x_label, title):
-    """ renders the plot on the fly.
-    """
-    fig = Figure()
-    ax = fig.add_subplot(1, 1, 1)
-    N = len(x_attributes)
-    ind = np.arange(N)
-    width = 0.3
-    for i in range(len(y_values)):
-        ax.bar(ind+width*i, y_values[i], width)
-    ax.set_xlabel(x_label)
-    ax.set_xticks(ind+width)
-    ax.set_xticklabels(tuple(x_attributes))
-    ax.set_yticks(np.arange(0,101,10))
-    ax.set_title(title)
-
-    output = io.BytesIO()
-    FigureCanvasAgg(fig).print_png(output)
-    return output
-
-
 @app.route('/')
+def hi():
+    return 'hello world'
+
+
+@app.route('/test')
 def hello_world():
     # Sandbox testing
     skills = [['hi', 'hello', 'hey','heya'], ['hi', 'hello', 'hey','heya']]
@@ -93,23 +82,46 @@ def hello_world():
     return Response(output.getvalue(), mimetype="image/png")
 
 
+@app.route('/student/<performance_type>', methods=['POST'])
+def create_bar_graph(performance_type):
+    """
+
+    :param performance_type: self : students own performance
+    :return: path to stored bar chart for given months and skill
+    """
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    data = request.json
+    data = eval(data)
+    skills = list(data.keys())
+    values = list(data.values())
+    data['months'] = eval(data['months'])
+    N = len(skills)
+    x = np.arange(N)
+    for i in range(N):
+        ax.bar(x + i*0.25, values[i], width = 0.25)
+    ax.savefig('image.png')
+    return {'path': 'image.png'}
+
+
 @app.route('/comments/keywords', methods=['POST'])
 def extract_keywords():
-    data = request.json
-    #print(data)
-    text_values = [eval(z) for z in list(data.values())]
-    #print(text_values)
-    attribute_values = list(data.keys())
+    skills = request.form.get('skills')
+    values = request.form.get('comments')
+    attribute_values = eval(skills)
+    values = eval(values)
+    print(attribute_values)
+    print(values)
     res = {}
-    for i in range(len(text_values)):
-        text_values[i] = [pre_process(z) for z in text_values[i]]
+    for i in range(len(values)):
+        values[i] = [pre_process(z) for z in values[i]]
         #print(text_values[i])
         cv = CountVectorizer(max_df=0.85, stop_words=stopwords, max_features=10000)
-        word_count_vector = cv.fit_transform(text_values[i])
+        word_count_vector = cv.fit_transform(values[i])
         tfidf_transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         tfidf_transformer.fit(word_count_vector)
         feature_names = cv.get_feature_names()
-        doc = ''.join(d for d in text_values[i])
+        doc = ''.join(d for d in values[i])
         tf_idf_vector = tfidf_transformer.fit_transform(cv.transform([doc]))
         sorted_items = sort_coo(tf_idf_vector.tocoo())
         keywords={}
@@ -140,5 +152,17 @@ def decide_which_product_kit():
     return res  # Recommend the one with the lowest score
 
 
-if __name__ == '__main__':
+@app.route('/class/perform', methods=['POST'])
+def send_waterfall_chart():
+    data = request.json
+    data['months'] = eval(data['months'])
+    data['values'] = eval(data['values'])
+    data['values'] = [float(x) for x in data['values']]
+    for i in range(1, len(data['values'])):
+        data['values'][i] -= data['values'][i-1]
+    waterfall_chart.plot(data['months'], data['values'], Title=data['skill']).savefig(f'{data["skill"]}{len(data["months"])}.png')
+    return {'Path': f"{os.getcwd()}/{data['skill']}{len(data['months'])}.png"}
+
+
+if _name_ == '_main_':
     app.run()
