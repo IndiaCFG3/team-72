@@ -13,7 +13,7 @@ class StudentRegistrationForm(forms.ModelForm):
     class Meta: 
         model = Student 
         fields = "__all__"
-        # exclude = ['teacher']
+        exclude = ['teacher']
 
 
 class UserDataForm(forms.ModelForm):

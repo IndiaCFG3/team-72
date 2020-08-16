@@ -19,17 +19,17 @@ def mystudents(request, id):
 
 @login_required
 def register(request):
-	context ={}
-
-	form = StudentRegistrationForm(request.POST or None, request.FILES or None)
-	
-	if form.is_valid(): 
-		form.save() 
-		username=form.cleaned_data.get('firstname')
-		messages.success(request,f'{username} registered !!')
-		return redirect('home')
-	context['form']= form 
-	return render(request,'students/register.html',context) 
+    context ={}
+    form = StudentRegistrationForm(request.POST or None, request.FILES or None)
+    t=Teacher.objects.get(id=request.user.id)
+    form.instance.teacher=t
+    if form.is_valid(): 
+        form.save() 
+        username=form.cleaned_data.get('firstname')
+        messages.success(request,f'{username} registered !!')
+        return redirect('home')
+    context['form']= form 
+    return render(request,'students/register.html',context) 
 
 @login_required
 def details(request,id,sid):
