@@ -4,3 +4,8 @@ Team*.zip
 *.crt
 *.key
 *.ovpn
+.idea/
+__pycache__/
+cfg logo.jpeg
+venv/
+.ipynb_checkpoints/
