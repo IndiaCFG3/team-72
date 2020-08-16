@@ -7,7 +7,7 @@ class Student(models.Model):
     lastname=models.CharField(max_length=20)
     email=models.EmailField()
     phone = models.CharField(max_length=12)
-    teacher =models.ForeignKey(User, models.SET_NULL,blank=True,null=True)
+    teacher=models.ForeignKey(User, models.SET_NULL,blank=True,null=True)
     keywords=models.TextField()
 
     def __str__(self):
