@@ -43,7 +43,7 @@ def detailsform(request,id,sid):
             if form.is_valid(): 
                 form.save() 
                 messages.success(request,f'Done')
-                return redirect('detailsform', id=id, sid=sid)
+                return redirect('details-form', id=id, sid=sid)
         else:
             form=UserDataForm()
         return render(request, 'students/detailsform.html',{'form':form,'sid':sid})
