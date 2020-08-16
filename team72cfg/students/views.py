@@ -50,6 +50,7 @@ def detailsform(request,id,sid):
     else:
         return render(request, 'students/error.html')
 
+
 def details(request,id,sid):
     if request.user.id==id:
         newHeaders = {'Content-type': 'application/json', 'Accept': 'text/plain'}
