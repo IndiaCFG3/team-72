@@ -20,7 +20,7 @@ from matplotlib.figure import Figure
 import io
 
 
-app = Flask(_name_)
+app = Flask(__name__)
 CORS(app, support_credentials=True)
 
 
@@ -107,6 +107,7 @@ def create_bar_graph(performance_type):
 @app.route('/comments/keywords', methods=['POST'])
 def extract_keywords():
     skills = request.form.get('skills')
+    print(skills)
     values = request.form.get('comments')
     attribute_values = eval(skills)
     values = eval(values)
@@ -166,5 +167,5 @@ def send_waterfall_chart():
     return {'Path': f"{os.getcwd()}/{data['skill']}{len(data['months'])}.png"}
 
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     app.run()

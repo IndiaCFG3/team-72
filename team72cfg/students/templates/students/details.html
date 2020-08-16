@@ -2,5 +2,12 @@
 
 {% block content %}
     <a class="btn btn-success" href="{% url 'details-form' id=user.id sid=sid %}"> Fill form</a>
-    
+    <div>
+        {% for key in keywords %}
+            <h2>{{ key }}</h2>
+        {% endfor %}
+    </div>
+    <div>
+        <h2>{{ x }}</h2>
+    </div>
 {% endblock content %}
